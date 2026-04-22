@@ -4,6 +4,8 @@ import logger from "./middleware/logger.js";
 import { connectTODatabase } from "./config/database.js";
 
 import productRoute from "./routes/productsRoute.js";
+import inventoryRoute from "./routes/inventoryRoute.js";
+import employeeRoute from "./routes/employeesRoute.js";
 
 dotenv.config();
 
@@ -15,6 +17,8 @@ app.use(express.json());
 app.use(logger);
 
 app.use("/products", productRoute);
+app.use("/inventory", inventoryRoute);
+app.use("/employees", employeeRoute);
 
 try {
   await connectTODatabase();
