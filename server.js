@@ -8,6 +8,8 @@ import inventoryRoute from "./routes/inventoryRoute.js";
 import employeeRoute from "./routes/employeesRoute.js";
 import tableRoute from "./routes/tablesRoute.js";
 
+import cors from "cors";
+
 dotenv.config();
 
 const app = express();
@@ -16,6 +18,20 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(logger);
+
+const allowedOrigins = ["http://localhost:5173"];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+  }),
+);
 
 app.use("/products", productRoute);
 app.use("/inventory", inventoryRoute);
