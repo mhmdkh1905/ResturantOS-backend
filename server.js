@@ -6,6 +6,7 @@ import { connectTODatabase } from "./config/database.js";
 import productRoute from "./routes/productsRoute.js";
 import inventoryRoute from "./routes/inventoryRoute.js";
 import employeeRoute from "./routes/employeesRoute.js";
+import tableRoute from "./routes/tablesRoute.js";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use(logger);
 app.use("/products", productRoute);
 app.use("/inventory", inventoryRoute);
 app.use("/employees", employeeRoute);
+app.use("/tables", tableRoute);
 
 try {
   await connectTODatabase();
