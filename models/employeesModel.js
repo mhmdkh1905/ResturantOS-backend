@@ -19,6 +19,27 @@ const employeeSchema = new mongoose.Schema(
       },
     },
 
+    phoneNumber: {
+      type: String,
+      required: [true, "Phone number is required"],
+      match: [
+        /^\+?[1-9]\d{1,14}$/,
+        "Phone number must be a valid international format",
+      ],
+    },
+
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+      lowercase: true,
+      trim: true,
+      match: [
+        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+        "Please fill a valid email address",
+      ],
+    },
+
     salaryPerHour: {
       type: Number,
       required: [true, "Salary per hour is required"],
@@ -33,13 +54,15 @@ const employeeSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   },
 );
-
-const Employee = mongoose.model("Employee", employeeSchema);
 
 employeeSchema.virtual("totalSalary").get(function () {
   return this.salaryPerHour * this.workedHours;
 });
+
+const Employee = mongoose.model("Employee", employeeSchema);
 
 export default Employee;

@@ -51,10 +51,10 @@ const inventorySchema = new mongoose.Schema(
   },
 );
 
-const Inventory = mongoose.model("Inventory", inventorySchema);
-
 inventorySchema.virtual("isLowStock").get(function () {
   return this.quantity <= this.minThreshold;
 });
+
+const Inventory = mongoose.model("Inventory", inventorySchema);
 
 export default Inventory;

@@ -32,11 +32,13 @@ export const getEmployeeById = async (req, res) => {
 
 export const createEmployee = async (req, res) => {
   try {
-    const { name, role, salaryPerHour } = req.body;
+    const { name, role, phoneNumber, email, salaryPerHour } = req.body;
 
     const newEmployee = await Employee.create({
       name,
       role,
+      phoneNumber,
+      email,
       salaryPerHour,
     });
 
