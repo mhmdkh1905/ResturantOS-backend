@@ -6,7 +6,7 @@ export const getAllMenu = async (req, res) => {
     const menuItems = await MenuItem.find().sort({ category: 1, name: 1 });
     successResponse(res, "Menu items fetched successfully", menuItems);
   } catch (error) {
-    errorResponse(res, "Internal server error", error.message);
+    errorResponse(res, "Internal server error", 500, error.message);
   }
 };
 
@@ -20,7 +20,7 @@ export const getMenuById = async (req, res) => {
       errorResponse(res, "Menu item not found", 404);
     }
   } catch (error) {
-    errorResponse(res, "Internal server error", error.message);
+    errorResponse(res, "Internal server error", 500, error.message);
   }
 };
 
@@ -44,7 +44,7 @@ export const createMenuItem = async (req, res) => {
         .json({ message: "Name, price and category are required" });
     }
   } catch (error) {
-    errorResponse(res, "Internal server error", error.message);
+    errorResponse(res, "Internal server error", 500, error.message);
   }
 };
 
@@ -63,7 +63,7 @@ export const updateMenuItem = async (req, res) => {
       errorResponse(res, "Menu item not found", 404);
     }
   } catch (error) {
-    errorResponse(res, "Internal server error", error.message);
+    errorResponse(res, "Internal server error", 500, error.message);
   }
 };
 
@@ -77,6 +77,6 @@ export const deleteMenuItem = async (req, res) => {
       errorResponse(res, "Menu item not found", 404);
     }
   } catch (error) {
-    errorResponse(res, "Internal server error", error.message);
+    errorResponse(res, "Internal server error", 500, error.message);
   }
 };
