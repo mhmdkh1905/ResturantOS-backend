@@ -1,5 +1,5 @@
 import Order from "../models/orderModel.js";
-import Table from "../models/tableModel.js";
+import Table from "../models/tablesModel.js";
 import MenuItem from "../models/menuModel.js";
 
 export const getAllOrders = async (req, res) => {
@@ -12,7 +12,7 @@ export const getAllOrders = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Internal server error",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -22,7 +22,9 @@ export const createOrder = async (req, res) => {
     const { tableId, items } = req.body;
 
     if (!tableId || !items || !Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ message: "Table ID and items array are required" });
+      return res
+        .status(400)
+        .json({ message: "Table ID and items array are required" });
     }
 
     // Validate table exists
@@ -36,7 +38,9 @@ export const createOrder = async (req, res) => {
     for (const item of items) {
       const menuItem = await MenuItem.findById(item.menuItemId);
       if (!menuItem) {
-        return res.status(404).json({ message: `Menu item ${item.menuItemId} not found` });
+        return res
+          .status(404)
+          .json({ message: `Menu item ${item.menuItemId} not found` });
       }
       totalPrice += menuItem.price * item.quantity;
     }
@@ -44,7 +48,7 @@ export const createOrder = async (req, res) => {
     const newOrder = new Order({
       tableId,
       items,
-      totalPrice
+      totalPrice,
     });
 
     const savedOrder = await newOrder.save();
@@ -55,7 +59,7 @@ export const createOrder = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Internal server error",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -72,9 +76,10 @@ export const updateOrderStatus = async (req, res) => {
     const order = await Order.findByIdAndUpdate(
       orderId,
       { status },
-      { new: true }
-    ).populate("tableId", "tableNumber status")
-     .populate("items.menuItemId", "name price category");
+      { new: true },
+    )
+      .populate("tableId", "tableNumber status")
+      .populate("items.menuItemId", "name price category");
 
     if (order) {
       res.status(200).json(order);
@@ -84,8 +89,7 @@ export const updateOrderStatus = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Internal server error",
-      error: error.message
+      error: error.message,
     });
   }
 };
-

@@ -19,20 +19,19 @@ export const createUser = async (req, res) => {
     const user = new User({
       name,
       email,
-      password: hashedPassword
+      password: hashedPassword,
     });
 
     await user.save();
 
     res.status(201).json({
       message: "User created successfully",
-      userId: user._id
+      userId: user._id,
     });
   } catch (error) {
-    res.status(500).json({ 
-      message: "Server error", 
-      error: error.message 
+    res.status(500).json({
+      message: "Server error",
+      error: error.message,
     });
   }
 };
-
