@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
 import Employee from "../models/employeesModel.js";
+import { successResponse, errorResponse } from "../utils/response.js";
 
 export const getAllEmployees = async (req, res) => {
   try {
     const employees = await Employee.find().sort({ createdAt: -1 });
-    res.status(200).json({ success: true, data: employees });
+    return successResponse(res, "Employees fetched successfully", employees);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };
 
@@ -15,36 +16,33 @@ export const getEmployeeById = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid ID" });
+      return errorResponse(res, "Invalid ID", 400);
     }
 
     const employee = await Employee.findById(id);
 
     if (!employee) {
-      return res.status(404).json({ message: "Employee not found" });
+      return errorResponse(res, "Employee not found", 404);
     }
 
-    res.status(200).json({ success: true, data: employee });
+    return successResponse(res, "Employee fetched successfully", employee);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };
 
 export const createEmployee = async (req, res) => {
   try {
-    const { name, role, phoneNumber, email, salaryPerHour } = req.body;
+    const newEmployee = await Employee.create(req.body);
 
-    const newEmployee = await Employee.create({
-      name,
-      role,
-      phoneNumber,
-      email,
-      salaryPerHour,
-    });
-
-    res.status(201).json({ success: true, data: newEmployee });
+    return successResponse(
+      res,
+      "Employee created successfully",
+      newEmployee,
+      201,
+    );
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };
 
@@ -53,7 +51,7 @@ export const updateEmployee = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid ID" });
+      return errorResponse(res, "Invalid ID", 400);
     }
 
     const updatedEmployee = await Employee.findByIdAndUpdate(id, req.body, {
@@ -62,12 +60,16 @@ export const updateEmployee = async (req, res) => {
     });
 
     if (!updatedEmployee) {
-      return res.status(404).json({ message: "Employee not found" });
+      return errorResponse(res, "Employee not found", 404);
     }
 
-    res.status(200).json({ success: true, data: updatedEmployee });
+    return successResponse(
+      res,
+      "Employee updated successfully",
+      updatedEmployee,
+    );
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };
 
@@ -76,21 +78,18 @@ export const deleteEmployee = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid ID" });
+      return errorResponse(res, "Invalid ID", 400);
     }
 
     const deletedEmployee = await Employee.findByIdAndDelete(id);
 
     if (!deletedEmployee) {
-      return res.status(404).json({ message: "Employee not found" });
+      return errorResponse(res, "Employee not found", 404);
     }
 
-    res.status(200).json({
-      success: true,
-      message: "Employee deleted successfully",
-    });
+    return successResponse(res, "Employee deleted successfully");
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };
 
@@ -103,12 +102,12 @@ export const getEmployeeByName = async (req, res) => {
     });
 
     if (!employee) {
-      return res.status(404).json({ message: "Employee not found" });
+      return errorResponse(res, "Employee not found", 404);
     }
 
-    res.status(200).json({ success: true, data: employee });
+    return successResponse(res, "Employee fetched successfully", employee);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };
 
@@ -118,27 +117,29 @@ export const updateEmployeeWorkedHours = async (req, res) => {
     const { workedHours } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid ID" });
+      return errorResponse(res, "Invalid ID", 400);
     }
 
     if (typeof workedHours !== "number" || workedHours < 0) {
-      return res
-        .status(400)
-        .json({ message: "Worked hours must be a non-negative number" });
+      return errorResponse(
+        res,
+        "Worked hours must be a non-negative number",
+        400,
+      );
     }
 
     const employee = await Employee.findById(id);
 
     if (!employee) {
-      return res.status(404).json({ message: "Employee not found" });
+      return errorResponse(res, "Employee not found", 404);
     }
 
     employee.workedHours += workedHours;
     await employee.save();
 
-    res.status(200).json({ success: true, data: employee });
+    return successResponse(res, "Worked hours updated", employee);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };
 
@@ -148,26 +149,25 @@ export const updateEmployeeSalary = async (req, res) => {
     const { salaryPerHour } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid ID" });
+      return errorResponse(res, "Invalid ID", 400);
     }
 
     if (typeof salaryPerHour !== "number" || salaryPerHour < 0) {
-      return res
-        .status(400)
-        .json({ message: "Salary per hour must be a non-negative number" });
+      return errorResponse(res, "Salary must be a non-negative number", 400);
     }
+
     const employee = await Employee.findById(id);
 
     if (!employee) {
-      return res.status(404).json({ message: "Employee not found" });
+      return errorResponse(res, "Employee not found", 404);
     }
 
     employee.salaryPerHour = salaryPerHour;
     await employee.save();
 
-    res.status(200).json({ success: true, data: employee });
+    return successResponse(res, "Salary updated", employee);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };
 
@@ -176,21 +176,21 @@ export const resetEmployeeWorkedHours = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid ID" });
+      return errorResponse(res, "Invalid ID", 400);
     }
 
     const employee = await Employee.findById(id);
 
     if (!employee) {
-      return res.status(404).json({ message: "Employee not found" });
+      return errorResponse(res, "Employee not found", 404);
     }
 
     employee.workedHours = 0;
     await employee.save();
 
-    res.status(200).json({ success: true, data: employee });
+    return successResponse(res, "Worked hours reset", employee);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };
 
@@ -198,9 +198,10 @@ export const resetAllEmployeesWorkedHours = async (req, res) => {
   try {
     await Employee.updateMany({}, { workedHours: 0 });
     const employees = await Employee.find().sort({ createdAt: -1 });
-    res.status(200).json({ success: true, data: employees });
+
+    return successResponse(res, "All employees hours reset", employees);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };
 
@@ -209,19 +210,19 @@ export const getEmployeeTotalSalary = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid ID" });
+      return errorResponse(res, "Invalid ID", 400);
     }
 
     const employee = await Employee.findById(id);
 
     if (!employee) {
-      return res.status(404).json({ message: "Employee not found" });
+      return errorResponse(res, "Employee not found", 404);
     }
 
-    const totalSalary = employee.totalSalary;
-
-    res.status(200).json({ success: true, data: { totalSalary } });
+    return successResponse(res, "Total salary fetched", {
+      totalSalary: employee.totalSalary,
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };

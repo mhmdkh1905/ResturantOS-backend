@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
 import Table from "../models/tablesModel.js";
+import { successResponse, errorResponse } from "../utils/response.js";
 
 export const getAllTables = async (req, res) => {
   try {
     const tables = await Table.find().sort({ createdAt: -1 });
-    res.status(200).json({ success: true, data: tables });
+    return successResponse(res, "Tables fetched successfully", tables);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };
 
@@ -15,18 +16,18 @@ export const getTableById = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid ID" });
+      return errorResponse(res, "Invalid ID", 400);
     }
 
     const table = await Table.findById(id);
 
     if (!table) {
-      return res.status(404).json({ message: "Table not found" });
+      return errorResponse(res, "Table not found", 404);
     }
 
-    res.status(200).json({ success: true, data: table });
+    return successResponse(res, "Table fetched successfully", table);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };
 
@@ -39,9 +40,15 @@ export const createTable = async (req, res) => {
       capacity,
     });
 
-    res.status(201).json({ success: true, data: newTable });
+    return successResponse(res, "Table created successfully", newTable);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    if (error.code === 11000) {
+      return errorResponse(res, "Table number already exists", 400, {
+        field: "number",
+        value: req.body.number,
+      });
+    }
+    return errorResponse(res, error.message, 500);
   }
 };
 
@@ -50,7 +57,7 @@ export const updateTable = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid ID" });
+      return errorResponse(res, "Invalid ID", 400);
     }
 
     const updatedTable = await Table.findByIdAndUpdate(id, req.body, {
@@ -58,12 +65,12 @@ export const updateTable = async (req, res) => {
     });
 
     if (!updatedTable) {
-      return res.status(404).json({ message: "Table not found" });
+      return errorResponse(res, "Table not found", 404);
     }
 
-    res.status(200).json({ success: true, data: updatedTable });
+    return successResponse(res, "Table updated successfully", updatedTable);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };
 
@@ -73,11 +80,11 @@ export const updateTableStatus = async (req, res) => {
     const { status } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid ID" });
+      return errorResponse(res, "Invalid ID", 400);
     }
 
     if (!["Free", "Occupied", "Reserved"].includes(status)) {
-      return res.status(400).json({ message: "Invalid status value" });
+      return errorResponse(res, "Invalid status value", 400);
     }
 
     const updatedTable = await Table.findByIdAndUpdate(
@@ -87,12 +94,16 @@ export const updateTableStatus = async (req, res) => {
     );
 
     if (!updatedTable) {
-      return res.status(404).json({ message: "Table not found" });
+      return errorResponse(res, "Table not found", 404);
     }
 
-    res.status(200).json({ success: true, data: updatedTable });
+    return successResponse(
+      res,
+      "Table status updated successfully",
+      updatedTable,
+    );
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };
 
@@ -101,19 +112,17 @@ export const deleteTable = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid ID" });
+      return errorResponse(res, "Invalid ID", 400);
     }
 
     const deletedTable = await Table.findByIdAndDelete(id);
 
     if (!deletedTable) {
-      return res.status(404).json({ message: "Table not found" });
+      return errorResponse(res, "Table not found", 404);
     }
 
-    res
-      .status(200)
-      .json({ success: true, message: "Table deleted successfully" });
+    return successResponse(res, "Table deleted successfully", deletedTable);
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };

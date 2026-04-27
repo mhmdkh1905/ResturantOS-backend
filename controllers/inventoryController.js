@@ -1,12 +1,17 @@
 import mongoose from "mongoose";
 import Inventory from "../models/inventoryModel.js";
+import { successResponse, errorResponse } from "../utils/response.js";
 
 export const getAllInventory = async (req, res) => {
   try {
     const inventoryItems = await Inventory.find().sort({ createdAt: -1 });
-    res.status(200).json({ success: true, data: inventoryItems });
+    return successResponse(
+      res,
+      "Inventory items fetched successfully",
+      inventoryItems,
+    );
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };
 
@@ -15,18 +20,22 @@ export const getInventoryById = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid ID" });
+      return errorResponse(res, "Invalid ID", 400);
     }
 
     const inventoryItem = await Inventory.findById(id);
 
     if (!inventoryItem) {
-      return res.status(404).json({ message: "Inventory item not found" });
+      return errorResponse(res, "Inventory item not found", 404);
     }
 
-    res.status(200).json({ success: true, data: inventoryItem });
+    return successResponse(
+      res,
+      "Inventory item fetched successfully",
+      inventoryItem,
+    );
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };
 
@@ -42,9 +51,7 @@ export const createInventoryItem = async (req, res) => {
     });
 
     if (existingItem) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Ingredient already exists" });
+      return errorResponse(res, "Ingredient already exists", 400);
     }
 
     const newInventoryItem = await Inventory.create({
@@ -56,18 +63,29 @@ export const createInventoryItem = async (req, res) => {
       supplier,
     });
 
-    res.status(201).json({ success: true, data: newInventoryItem });
+    return successResponse(
+      res,
+      "Inventory item created successfully",
+      newInventoryItem,
+    );
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    if (error.code === 11000) {
+      return errorResponse(res, "Ingredient already exists", 400, {
+        field: "ingredientName",
+        value: req.body.ingredientName,
+      });
+    }
+    return errorResponse(res, error.message, 400);
   }
 };
 
 export const updateInventoryItem = async (req, res) => {
+  console.error("Update Inventory Item - Request Body:", req.params, req.body);
   try {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid ID" });
+      return errorResponse(res, "Invalid ID", 400);
     }
 
     const updates = Object.fromEntries(
@@ -80,12 +98,16 @@ export const updateInventoryItem = async (req, res) => {
     });
 
     if (!inventoryItem) {
-      return res.status(404).json({ message: "Inventory item not found" });
+      return errorResponse(res, "Inventory item not found", 404);
     }
 
-    res.status(200).json({ success: true, data: inventoryItem });
+    return successResponse(
+      res,
+      "Inventory item updated successfully",
+      inventoryItem,
+    );
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 400);
   }
 };
 
@@ -94,21 +116,22 @@ export const deleteInventoryItem = async (req, res) => {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ message: "Invalid ID" });
+      return errorResponse(res, "Invalid ID", 400);
     }
 
     const inventoryItem = await Inventory.findByIdAndDelete(id);
 
     if (!inventoryItem) {
-      return res.status(404).json({ message: "Inventory item not found" });
+      return errorResponse(res, "Inventory item not found", 404);
     }
 
-    res.status(200).json({
-      success: true,
-      message: "Inventory item deleted successfully",
-    });
+    return successResponse(
+      res,
+      "Inventory item deleted successfully",
+      inventoryItem,
+    );
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };
 
@@ -123,11 +146,15 @@ export const getInventoryByName = async (req, res) => {
     });
 
     if (!inventoryItem) {
-      return res.status(404).json({ message: "Inventory item not found" });
+      return errorResponse(res, "Inventory item not found", 404);
     }
 
-    res.status(200).json({ success: true, data: inventoryItem });
+    return successResponse(
+      res,
+      "Inventory item fetched successfully",
+      inventoryItem,
+    );
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    return errorResponse(res, error.message, 500);
   }
 };
