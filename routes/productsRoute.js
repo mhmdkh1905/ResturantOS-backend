@@ -6,6 +6,7 @@ import {
   updateProduct,
   deleteProduct,
 } from "../controllers/productsController.js";
+import { authenticate, requireRole } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -13,10 +14,10 @@ router.get("/", getAllProducts);
 
 router.get("/:id", getProductById);
 
-router.post("/", createProduct);
+router.post("/", authenticate, requireRole("admin"), createProduct);
 
-router.put("/:id", updateProduct);
+router.put("/:id", authenticate, requireRole("admin"), updateProduct);
 
-router.delete("/:id", deleteProduct);
+router.delete("/:id", authenticate, requireRole("admin"), deleteProduct);
 
 export default router;
