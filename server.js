@@ -8,6 +8,11 @@ import userRoute from "./routes/userRoute.js";
 import authRoute from "./routes/authRoute.js";
 import menuRoute from "./routes/menuRoute.js";
 import orderRoute from "./routes/orderRoute.js";
+import inventoryRoute from "./routes/inventoryRoute.js";
+import employeeRoute from "./routes/employeesRoute.js";
+import tableRoute from "./routes/tablesRoute.js";
+
+import cors from "cors";
 
 dotenv.config();
 
@@ -18,11 +23,28 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(logger);
 
+const allowedOrigins = ["http://localhost:5173"];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+  }),
+);
+
 app.use("/products", productRoute);
 app.use("/users", userRoute);
 app.use("/auth", authRoute);
 app.use("/menu", menuRoute);
 app.use("/orders", orderRoute);
+app.use("/inventory", inventoryRoute);
+app.use("/employees", employeeRoute);
+app.use("/tables", tableRoute);
 
 try {
   await connectTODatabase();
