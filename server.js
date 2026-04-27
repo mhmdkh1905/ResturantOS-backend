@@ -4,6 +4,10 @@ import logger from "./middleware/logger.js";
 import { connectTODatabase } from "./config/database.js";
 
 import productRoute from "./routes/productsRoute.js";
+import userRoute from "./routes/userRoute.js";
+import authRoute from "./routes/authRoute.js";
+import menuRoute from "./routes/menuRoute.js";
+import orderRoute from "./routes/orderRoute.js";
 import inventoryRoute from "./routes/inventoryRoute.js";
 import employeeRoute from "./routes/employeesRoute.js";
 import tableRoute from "./routes/tablesRoute.js";
@@ -34,6 +38,10 @@ app.use(
 );
 
 app.use("/products", productRoute);
+app.use("/users", userRoute);
+app.use("/auth", authRoute);
+app.use("/menu", menuRoute);
+app.use("/orders", orderRoute);
 app.use("/inventory", inventoryRoute);
 app.use("/employees", employeeRoute);
 app.use("/tables", tableRoute);
