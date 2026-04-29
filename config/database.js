@@ -2,8 +2,7 @@ import mongoose from "mongoose";
 
 export async function connectTODatabase() {
   try {
-    const url =
-      "mongodb+srv://mhmd52kh_db_user:hmode2002@cluster0.5ctgdsv.mongodb.net/resturantOS";
+    const url = process.env.MONGODB_URI;
 
     await mongoose.connect(url, {});
 
