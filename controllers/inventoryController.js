@@ -93,7 +93,7 @@ export const updateInventoryItem = async (req, res) => {
     );
 
     const inventoryItem = await Inventory.findByIdAndUpdate(id, updates, {
-      new: true,
+      returnDocument: 'after',
       runValidators: true,
     });
 
