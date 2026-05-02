@@ -3,41 +3,41 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { successResponse, errorResponse } from "../utils/response.js";
 
-
-
 export const registerUser = async (req, res) => {
   try {
     const JWT_SECRET = process.env.JWT_SECRET;
-    const { name, email, password } = req.body;
-    let role = req.body;
+    const { name, email, password, role } = req.body;
 
     const userCount = await User.countDocuments();
 
+    let finalRole;
+
     if (userCount === 0) {
-      role = "admin";
+      finalRole = "admin";
     } else {
       if (!req.user || req.user.role !== "admin") {
         return errorResponse(res, "Only admin can create users", 403);
       }
 
       const allowedRoles = ["waiter", "chef"];
+
       if (!allowedRoles.includes(role)) {
         return errorResponse(res, "Invalid role", 400);
       }
+
+      finalRole = role;
     }
 
     const newUser = await User.create({
       name: name.trim(),
       email: email.toLowerCase().trim(),
-      password: password,
-      role: "admin",
+      password,
+      role: finalRole,
     });
 
     const token = jwt.sign(
       {
         userId: newUser._id,
-        email: newUser.email,
-        name: newUser.name,
         role: newUser.role,
       },
       JWT_SECRET,
@@ -45,12 +45,7 @@ export const registerUser = async (req, res) => {
     );
 
     return successResponse(res, "User created successfully", {
-      user: {
-        userId: newUser._id,
-        email: newUser.email,
-        name: newUser.name,
-        role: newUser.role,
-      },
+      user: newUser,
       token,
     });
   } catch (error) {

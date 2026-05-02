@@ -4,11 +4,16 @@ import {
   createOrder,
   updateOrderStatus,
 } from "../controllers/orderController.js";
-
+import { authinticateUser, requireTwoRoles } from "../middleware/auth.js";
 const router = express.Router();
 
-router.get("/", getAllOrders);
-router.post("/", createOrder);
-router.put("/:id/status", updateOrderStatus);
+router.get("/", authinticateUser, getAllOrders);
+router.post(
+  "/",
+  authinticateUser,
+  requireTwoRoles("admin", "waiter"),
+  createOrder,
+);
+router.put("/:id/status", authinticateUser, updateOrderStatus);
 
 export default router;

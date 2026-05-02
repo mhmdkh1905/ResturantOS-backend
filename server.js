@@ -7,7 +7,6 @@ import logger from "./middleware/logger.js";
 import { authinticateUser } from "./middleware/auth.js";
 import { connectTODatabase } from "./config/database.js";
 
-import productRoute from "./routes/productsRoute.js";
 import menuRoute from "./routes/menuRoute.js";
 import orderRoute from "./routes/orderRoute.js";
 import inventoryRoute from "./routes/inventoryRoute.js";
@@ -36,12 +35,12 @@ app.use(
   }),
 );
 
-app.use("/auth", authRoute);
+app.use("/api/auth", authRoute);
 app.use("/api/menu", menuRoute);
-app.use("/api/orders", orderRoute);
-app.use("/api/inventory", inventoryRoute);
-app.use("/api/employees", employeeRoute);
-app.use("/api/tables", tableRoute);
+app.use("/api/orders", authinticateUser, orderRoute);
+app.use("/api/inventory", authinticateUser, inventoryRoute);
+app.use("/api/employees", authinticateUser, employeeRoute);
+app.use("/api/tables", authinticateUser, tableRoute);
 
 try {
   await connectTODatabase();

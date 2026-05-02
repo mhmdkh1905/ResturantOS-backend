@@ -47,6 +47,7 @@ export const authinticateUser = async (req, res, next) => {
       id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
     };
 
     req.tokenData = decoded;
@@ -55,4 +56,36 @@ export const authinticateUser = async (req, res, next) => {
   } catch (error) {
     return errorResponse(res, error.message, 401);
   }
+};
+
+export const requireAdmin = (role) => {
+  return (req, res, next) => {
+    try {
+      if (!req.user) {
+        return errorResponse(res, "There is no user", 404);
+      }
+      if (req.user.role !== role) {
+        return errorResponse(res, "Access Denied", 404);
+      }
+      next();
+    } catch (error) {
+      errorResponse(res, "Server error", 400);
+    }
+  };
+};
+
+export const requireTwoRoles = (role1, role2) => {
+  return (req, res, next) => {
+    try {
+      if (!req.user) {
+        return errorResponse(res, "There is no user", 404);
+      }
+      if (req.user.role !== role1 && req.user.role !== role2) {
+        return errorResponse(res, "Access Denied", 404);
+      }
+      next();
+    } catch (error) {
+      errorResponse(res, "Server error", 400);
+    }
+  };
 };

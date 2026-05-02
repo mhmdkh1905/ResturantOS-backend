@@ -7,19 +7,46 @@ import {
   updateTableStatus,
   deleteTable,
 } from "../controllers/tablesController.js";
+import {
+  authinticateUser,
+  requireAdmin,
+  requireTwoRoles,
+} from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/", getAllTables);
+//admin or waiter
 
-router.get("/:id", getTableById);
+router.get(
+  "/",
+  authinticateUser,
+  requireTwoRoles("admin", "waiter"),
+  getAllTables,
+);
 
-router.post("/", createTable);
+router.get(
+  "/:id",
+  authinticateUser,
+  requireTwoRoles("admin", "waiter"),
+  getTableById,
+);
 
-router.put("/:id", updateTable);
+router.post("/", authinticateUser, requireAdmin("admin"), createTable);
 
-router.patch("/:id/status", updateTableStatus);
+router.put(
+  "/:id",
+  authinticateUser,
+  requireTwoRoles("admin", "waiter"),
+  updateTable,
+);
 
-router.delete("/:id", deleteTable);
+router.patch(
+  "/:id/status",
+  authinticateUser,
+  requireTwoRoles("admin", "waiter"),
+  updateTableStatus,
+);
+
+router.delete("/:id", authinticateUser, requireAdmin("admin"), deleteTable);
 
 export default router;
