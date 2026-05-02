@@ -37,12 +37,11 @@ app.use(
 );
 
 app.use("/auth", authRoute);
-app.use("/products", authinticateUser, productRoute);
-app.use("/menu", authinticateUser, menuRoute);
-app.use("/orders", authinticateUser, orderRoute);
-app.use("/inventory", authinticateUser, inventoryRoute);
-app.use("/employees", authinticateUser, employeeRoute);
-app.use("/tables", authinticateUser, tableRoute);
+app.use("/api/menu", menuRoute);
+app.use("/api/orders", orderRoute);
+app.use("/api/inventory", inventoryRoute);
+app.use("/api/employees", employeeRoute);
+app.use("/api/tables", tableRoute);
 
 try {
   await connectTODatabase();

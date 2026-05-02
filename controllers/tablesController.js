@@ -90,7 +90,7 @@ export const updateTableStatus = async (req, res) => {
     const updatedTable = await Table.findByIdAndUpdate(
       id,
       { status },
-      { new: true },
+{ returnDocument: 'after' }
     );
 
     if (!updatedTable) {

@@ -76,7 +76,7 @@ export const updateOrderStatus = async (req, res) => {
     const order = await Order.findByIdAndUpdate(
       orderId,
       { status },
-      { new: true },
+{ returnDocument: 'after' }
     )
       .populate("tableId", "tableNumber status")
       .populate("items.menuItemId", "name price category");

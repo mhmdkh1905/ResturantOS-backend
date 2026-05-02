@@ -56,7 +56,7 @@ export const updateProduct = async (req, res) => {
     const product = await Product.findByIdAndUpdate(
       productId,
       { name, price, size },
-      { new: true },
+{ returnDocument: 'after' }
     );
     if (product) {
       res.status(200).json(product);

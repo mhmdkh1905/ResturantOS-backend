@@ -44,7 +44,14 @@ export const createMenuItem = async (req, res) => {
         .json({ message: "Name, price and category are required" });
     }
   } catch (error) {
-    errorResponse(res, "Internal server error", 500, error.message);
+    console.error('Create menu error:', error); // Log for debugging
+    if (error.name === 'ValidationError') {
+      errorResponse(res, 'Validation failed', 400, error.message);
+    } else if (error.code === 11000) { // Duplicate key
+      errorResponse(res, 'Menu item name must be unique', 409, error.message);
+    } else {
+      errorResponse(res, 'Internal server error', 500, error.message);
+    }
   }
 };
 
@@ -55,7 +62,7 @@ export const updateMenuItem = async (req, res) => {
     const menuItem = await MenuItem.findByIdAndUpdate(
       menuItemId,
       { name, price, category, image, recipe },
-      { new: true, runValidators: true },
+{ returnDocument: 'after', runValidators: true }
     );
     if (menuItem) {
       successResponse(res, "Menu item updated successfully", menuItem);
