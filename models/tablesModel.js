@@ -1,30 +1,28 @@
 import mongoose from "mongoose";
 
-const tableSchema = new mongoose.Schema({
-  number: {
-    type: Number,
-    required: [true, "Table number is required"],
-    unique: true,
-    min: [1, "Table number must be at least 1"],
-  },
-  capacity: {
-    type: Number,
-    required: [true, "Table capacity is required"],
-    min: [1, "Table capacity must be at least 1"],
-  },
-  status: {
-    type: String,
-    enum: {
-      values: ["Free", "Occupied", "Reserved"],
-      message: "Status must be one of: Free, Occupied, Reserved",
+const tableSchema = new mongoose.Schema(
+  {
+    number: {
+      type: Number,
+      required: true,
+      unique: true,
+      min: 1,
     },
-    default: "Free",
+    capacity: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
+    status: {
+      type: String,
+      enum: ["Free", "Occupied", "Reserved"],
+      default: "Free",
+    },
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
+  {
+    timestamps: true,
   },
-});
+);
 
 const Table = mongoose.model("Table", tableSchema);
 

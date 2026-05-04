@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Employee from "../models/employeesModel.js";
+import User from "../models/userModel.js";
 import { successResponse, errorResponse } from "../utils/response.js";
 
 export const getAllEmployees = async (req, res) => {
@@ -31,21 +32,6 @@ export const getEmployeeById = async (req, res) => {
   }
 };
 
-export const createEmployee = async (req, res) => {
-  try {
-    const newEmployee = await Employee.create(req.body);
-
-    return successResponse(
-      res,
-      "Employee created successfully",
-      newEmployee,
-      201,
-    );
-  } catch (error) {
-    return errorResponse(res, error.message, 500);
-  }
-};
-
 export const updateEmployee = async (req, res) => {
   try {
     const { id } = req.params;
@@ -55,7 +41,7 @@ export const updateEmployee = async (req, res) => {
     }
 
     const updatedEmployee = await Employee.findByIdAndUpdate(id, req.body, {
-      returnDocument: 'after',
+      returnDocument: "after",
       runValidators: true,
     });
 
@@ -224,5 +210,70 @@ export const getEmployeeTotalSalary = async (req, res) => {
     });
   } catch (error) {
     return errorResponse(res, error.message, 500);
+  }
+};
+
+export const createEmployee = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const {
+      name,
+      email,
+      password,
+      role,
+      phoneNumber,
+      workedHours,
+      salaryPerHour,
+    } = req.body;
+
+    const existingUser = await User.findOne({ email }).session(session);
+    if (existingUser) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+    const user = await User.create(
+      [
+        {
+          name,
+          email,
+          password,
+          role: role.toLowerCase(),
+        },
+      ],
+      { session },
+    );
+
+    const employee = await Employee.create(
+      [
+        {
+          name,
+          email,
+          phoneNumber,
+          role,
+          workedHours,
+          salaryPerHour,
+          userId: user[0]._id,
+        },
+      ],
+      { session },
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return res.status(201).json({
+      message: "Employee created successfully",
+      employee: employee[0],
+      user: user[0],
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    return res.status(500).json({ message: error.message });
   }
 };

@@ -15,6 +15,10 @@ const orderItemSchema = new mongoose.Schema({
 
 const orderSchema = new mongoose.Schema(
   {
+    orderNumber: {
+      type: Number,
+      unique: true,
+    },
     tableId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Table",

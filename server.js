@@ -13,6 +13,7 @@ import inventoryRoute from "./routes/inventoryRoute.js";
 import employeeRoute from "./routes/employeesRoute.js";
 import tableRoute from "./routes/tablesRoute.js";
 import authRoute from "./routes/authRoute.js";
+import dashboardRoute from "./routes/dashboardRoute.js";
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use(
 
 app.use("/api/auth", authRoute);
 app.use("/api/menu", menuRoute);
+app.use("/api/dashboard", authinticateUser, dashboardRoute);
 app.use("/api/orders", authinticateUser, orderRoute);
 app.use("/api/inventory", authinticateUser, inventoryRoute);
 app.use("/api/employees", authinticateUser, employeeRoute);

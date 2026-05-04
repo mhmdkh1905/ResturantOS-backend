@@ -14,7 +14,7 @@ const employeeSchema = new mongoose.Schema(
       type: String,
       required: [true, "Role is required"],
       enum: {
-        values: ["Admin", "Chef", "Waiter"],
+        values: ["admin", "chef", "waiter"],
         message: "Role must be one of: Admin, Chef, Waiter",
       },
     },

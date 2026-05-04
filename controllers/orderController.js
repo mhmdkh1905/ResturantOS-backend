@@ -1,6 +1,7 @@
 import Order from "../models/orderModel.js";
 import Table from "../models/tablesModel.js";
 import MenuItem from "../models/menuModel.js";
+import Counter from "../models/counterModel.js";
 
 export const getAllOrders = async (req, res) => {
   try {
@@ -27,13 +28,11 @@ export const createOrder = async (req, res) => {
         .json({ message: "Table ID and items array are required" });
     }
 
-    // Validate table exists
     const table = await Table.findById(tableId);
     if (!table) {
       return res.status(404).json({ message: "Table not found" });
     }
 
-    // Calculate total and validate items
     let totalPrice = 0;
     for (const item of items) {
       const menuItem = await MenuItem.findById(item.menuItemId);
@@ -45,7 +44,14 @@ export const createOrder = async (req, res) => {
       totalPrice += menuItem.price * item.quantity;
     }
 
+    const counter = await Counter.findOneAndUpdate(
+      { name: "order" },
+      { $inc: { value: 1 } },
+      { new: true, upsert: true },
+    );
+
     const newOrder = new Order({
+      orderNumber: counter.value,
       tableId,
       items,
       totalPrice,
@@ -76,7 +82,7 @@ export const updateOrderStatus = async (req, res) => {
     const order = await Order.findByIdAndUpdate(
       orderId,
       { status },
-{ returnDocument: 'after' }
+      { returnDocument: "after" },
     )
       .populate("tableId", "tableNumber status")
       .populate("items.menuItemId", "name price category");

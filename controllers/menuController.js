@@ -26,7 +26,7 @@ export const getMenuById = async (req, res) => {
 
 export const createMenuItem = async (req, res) => {
   try {
-    const { name, price, category, image, recipe } = req.body;
+    const { name, price, category, image, recipe, isAvailable } = req.body;
     if (name && price && category) {
       const newMenuItem = new MenuItem({
         name,
@@ -34,6 +34,7 @@ export const createMenuItem = async (req, res) => {
         category,
         image,
         recipe,
+        isAvailable,
       });
 
       const savedMenuItem = await newMenuItem.save();
@@ -44,13 +45,14 @@ export const createMenuItem = async (req, res) => {
         .json({ message: "Name, price and category are required" });
     }
   } catch (error) {
-    console.error('Create menu error:', error); // Log for debugging
-    if (error.name === 'ValidationError') {
-      errorResponse(res, 'Validation failed', 400, error.message);
-    } else if (error.code === 11000) { // Duplicate key
-      errorResponse(res, 'Menu item name must be unique', 409, error.message);
+    console.error("Create menu error:", error); // Log for debugging
+    if (error.name === "ValidationError") {
+      errorResponse(res, "Validation failed", 400, error.message);
+    } else if (error.code === 11000) {
+      // Duplicate key
+      errorResponse(res, "Menu item name must be unique", 409, error.message);
     } else {
-      errorResponse(res, 'Internal server error', 500, error.message);
+      errorResponse(res, "Internal server error", 500, error.message);
     }
   }
 };
@@ -59,11 +61,19 @@ export const updateMenuItem = async (req, res) => {
   try {
     const menuItemId = req.params.id;
     const { name, price, category, image, recipe } = req.body;
-    const menuItem = await MenuItem.findByIdAndUpdate(
-      menuItemId,
-      { name, price, category, image, recipe },
-{ returnDocument: 'after', runValidators: true }
-    );
+
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (price !== undefined) updateData.price = price;
+    if (category !== undefined) updateData.category = category;
+    if (image !== undefined) updateData.image = image;
+    if (recipe !== undefined) updateData.recipe = recipe;
+
+    const menuItem = await MenuItem.findByIdAndUpdate(menuItemId, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
     if (menuItem) {
       successResponse(res, "Menu item updated successfully", menuItem);
     } else {
