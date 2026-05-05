@@ -24,7 +24,7 @@ app.use(logger);
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://your-frontend-name.vercel.app",
+  "https://resturant-os-frontend-mu.vercel.app/",
 ];
 
 app.use(
