@@ -36,13 +36,13 @@ app.use(
   }),
 );
 
-app.use("/api/auth", authRoute);
-app.use("/api/menu", menuRoute);
-app.use("/api/dashboard", authinticateUser, dashboardRoute);
-app.use("/api/orders", authinticateUser, orderRoute);
-app.use("/api/inventory", authinticateUser, inventoryRoute);
-app.use("/api/employees", authinticateUser, employeeRoute);
-app.use("/api/tables", authinticateUser, tableRoute);
+app.use("/auth", authRoute);
+app.use("/menu", menuRoute);
+app.use("/dashboard", authinticateUser, dashboardRoute);
+app.use("/orders", authinticateUser, orderRoute);
+app.use("/inventory", authinticateUser, inventoryRoute);
+app.use("/employees", authinticateUser, employeeRoute);
+app.use("/tables", authinticateUser, tableRoute);
 
 try {
   await connectTODatabase();
