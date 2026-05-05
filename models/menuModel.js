@@ -32,6 +32,20 @@ const menuItemSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    ingredients: [
+      {
+        ingredientId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Inventory",
+          required: true,
+        },
+        quantity: {
+          type: Number,
+          required: true,
+          min: [0, "Quantity must be positive"],
+        },
+      },
+    ],
   },
   {
     timestamps: true,

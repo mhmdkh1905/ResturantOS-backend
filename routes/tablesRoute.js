@@ -15,7 +15,7 @@ import {
 
 const router = express.Router();
 
-//admin or waiter
+
 
 router.get(
   "/",

@@ -3,7 +3,9 @@ import { successResponse, errorResponse } from "../utils/response.js";
 
 export const getAllMenu = async (req, res) => {
   try {
-    const menuItems = await MenuItem.find().sort({ category: 1, name: 1 });
+    const menuItems = await MenuItem.find()
+      .populate("ingredients.ingredientId")
+      .sort({ category: 1, name: 1 });
     successResponse(res, "Menu items fetched successfully", menuItems);
   } catch (error) {
     errorResponse(res, "Internal server error", 500, error.message);
@@ -13,7 +15,9 @@ export const getAllMenu = async (req, res) => {
 export const getMenuById = async (req, res) => {
   try {
     const menuItemId = req.params.id;
-    const menuItem = await MenuItem.findById(menuItemId);
+    const menuItem = await MenuItem.findById(menuItemId).populate(
+      "ingredients.ingredientId",
+    );
     if (menuItem) {
       successResponse(res, "Menu item fetched successfully", menuItem);
     } else {
@@ -26,7 +30,8 @@ export const getMenuById = async (req, res) => {
 
 export const createMenuItem = async (req, res) => {
   try {
-    const { name, price, category, image, recipe, isAvailable } = req.body;
+    const { name, price, category, image, recipe, isAvailable, ingredients } =
+      req.body;
     if (name && price && category) {
       const newMenuItem = new MenuItem({
         name,
@@ -35,6 +40,7 @@ export const createMenuItem = async (req, res) => {
         image,
         recipe,
         isAvailable,
+        ingredients,
       });
 
       const savedMenuItem = await newMenuItem.save();
@@ -49,7 +55,7 @@ export const createMenuItem = async (req, res) => {
     if (error.name === "ValidationError") {
       errorResponse(res, "Validation failed", 400, error.message);
     } else if (error.code === 11000) {
-      // Duplicate key
+      
       errorResponse(res, "Menu item name must be unique", 409, error.message);
     } else {
       errorResponse(res, "Internal server error", 500, error.message);
@@ -60,7 +66,7 @@ export const createMenuItem = async (req, res) => {
 export const updateMenuItem = async (req, res) => {
   try {
     const menuItemId = req.params.id;
-    const { name, price, category, image, recipe } = req.body;
+    const { name, price, category, image, recipe, ingredients } = req.body;
 
     const updateData = {};
     if (name !== undefined) updateData.name = name;
@@ -68,6 +74,16 @@ export const updateMenuItem = async (req, res) => {
     if (category !== undefined) updateData.category = category;
     if (image !== undefined) updateData.image = image;
     if (recipe !== undefined) updateData.recipe = recipe;
+
+    if (ingredients !== undefined) {
+      if (!Array.isArray(ingredients)) {
+        return res.status(400).json({
+          message: "Ingredients must be an array",
+        });
+      }
+
+      updateData.ingredients = ingredients;
+    }
 
     const menuItem = await MenuItem.findByIdAndUpdate(menuItemId, updateData, {
       new: true,

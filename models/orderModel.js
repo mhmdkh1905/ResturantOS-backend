@@ -11,7 +11,6 @@ const orderItemSchema = new mongoose.Schema({
     required: [true, "Quantity is required"],
     min: [1, "Quantity must be at least 1"],
   },
-  
 });
 
 const orderSchema = new mongoose.Schema(
@@ -26,6 +25,12 @@ const orderSchema = new mongoose.Schema(
       required: [true, "Table ID is required"],
     },
     items: [orderItemSchema],
+    note: {
+      type: String,
+      trim: true,
+      maxlength: [500, "Note must be less than 500 characters"],
+      default: "",
+    },
     status: {
       type: String,
       enum: ["Pending", "Preparing", "Ready", "Served"],

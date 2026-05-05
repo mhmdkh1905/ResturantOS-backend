@@ -1,6 +1,8 @@
+import mongoose from "mongoose";
 import Order from "../models/orderModel.js";
 import Table from "../models/tablesModel.js";
 import MenuItem from "../models/menuModel.js";
+import Inventory from "../models/inventoryModel.js";
 import Counter from "../models/counterModel.js";
 
 export const getAllOrders = async (req, res) => {
@@ -9,6 +11,7 @@ export const getAllOrders = async (req, res) => {
       .populate("tableId", "tableNumber status")
       .populate("items.menuItemId", "name price category")
       .sort({ createdAt: -1 });
+
     res.status(200).json(orders);
   } catch (error) {
     res.status(500).json({
@@ -19,53 +22,101 @@ export const getAllOrders = async (req, res) => {
 };
 
 export const createOrder = async (req, res) => {
+  const session = await mongoose.startSession();
+
   try {
-    const { tableId, items } = req.body;
+    session.startTransaction();
+
+    const { tableId, items, note } = req.body;
 
     if (!tableId || !items || !Array.isArray(items) || items.length === 0) {
-      return res
-        .status(400)
-        .json({ message: "Table ID and items array are required" });
+      throw new Error("Table ID and items array are required");
     }
 
-    const table = await Table.findById(tableId);
+    const table = await Table.findById(tableId).session(session);
     if (!table) {
-      return res.status(404).json({ message: "Table not found" });
+      throw new Error("Table not found");
     }
 
     let totalPrice = 0;
+
     for (const item of items) {
-      const menuItem = await MenuItem.findById(item.menuItemId);
-      if (!menuItem) {
-        return res
-          .status(404)
-          .json({ message: `Menu item ${item.menuItemId} not found` });
+      const quantity = Number(item.quantity);
+
+      if (!item.menuItemId || !Number.isFinite(quantity) || quantity < 1) {
+        throw new Error(
+          "Each order item needs a menuItemId and quantity of at least 1",
+        );
       }
-      totalPrice += menuItem.price * item.quantity;
+
+      const menuItem = await MenuItem.findById(item.menuItemId).session(
+        session,
+      );
+
+      if (!menuItem) {
+        throw new Error(`Menu item ${item.menuItemId} not found`);
+      }
+
+      if (!menuItem.ingredients || menuItem.ingredients.length === 0) {
+        throw new Error(
+          `Menu item "${menuItem.name}" has no ingredients configured`,
+        );
+      }
+
+      totalPrice += menuItem.price * quantity;
+
+      for (const ing of menuItem.ingredients) {
+        const requiredQty = ing.quantity * quantity;
+
+        const updated = await Inventory.findOneAndUpdate(
+          {
+            _id: ing.ingredientId,
+            quantity: { $gte: requiredQty },
+          },
+          {
+            $inc: { quantity: -requiredQty },
+          },
+          {
+            new: true,
+            session,
+          },
+        );
+
+        if (!updated) {
+          throw new Error("Not enough stock for ingredient");
+        }
+      }
     }
 
     const counter = await Counter.findOneAndUpdate(
       { name: "order" },
       { $inc: { value: 1 } },
-      { new: true, upsert: true },
+      { new: true, upsert: true, session },
     );
 
     const newOrder = new Order({
       orderNumber: counter.value,
       tableId,
       items,
+      note,
       totalPrice,
     });
 
-    const savedOrder = await newOrder.save();
+    const savedOrder = await newOrder.save({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
     await savedOrder.populate("tableId", "tableNumber status");
     await savedOrder.populate("items.menuItemId", "name price category");
 
     res.status(201).json(savedOrder);
   } catch (error) {
-    res.status(500).json({
-      message: "Internal server error",
-      error: error.message,
+    await session.abortTransaction();
+    session.endSession();
+
+    res.status(400).json({
+      message: error.message,
     });
   }
 };
@@ -82,16 +133,16 @@ export const updateOrderStatus = async (req, res) => {
     const order = await Order.findByIdAndUpdate(
       orderId,
       { status },
-      { returnDocument: "after" },
+      { new: true },
     )
       .populate("tableId", "tableNumber status")
       .populate("items.menuItemId", "name price category");
 
-    if (order) {
-      res.status(200).json(order);
-    } else {
-      res.status(404).json({ message: "Order not found" });
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
     }
+
+    res.status(200).json(order);
   } catch (error) {
     res.status(500).json({
       message: "Internal server error",
