@@ -44,8 +44,6 @@ app.use(
   }),
 );
 
-app.options("*", cors());
-
 app.use("/api/auth", authRoute);
 app.use("/api/menu", menuRoute);
 app.use("/api/dashboard", authinticateUser, dashboardRoute);
