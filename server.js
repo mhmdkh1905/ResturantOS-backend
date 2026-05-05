@@ -54,13 +54,17 @@ app.use("/api/inventory", authinticateUser, inventoryRoute);
 app.use("/api/employees", authinticateUser, employeeRoute);
 app.use("/api/tables", authinticateUser, tableRoute);
 
-try {
-  await connectTODatabase();
+const startServer = async () => {
+  try {
+    await connectTODatabase();
 
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-} catch (error) {
-  console.error("Failed to connect to the database:", error);
-  process.exit(1);
-}
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("DB connection failed:", error);
+    process.exit(1);
+  }
+};
+
+startServer();
