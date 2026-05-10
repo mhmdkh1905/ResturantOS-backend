@@ -80,7 +80,6 @@ export const createInventoryItem = async (req, res) => {
 };
 
 export const updateInventoryItem = async (req, res) => {
-  console.error("Update Inventory Item - Request Body:", req.params, req.body);
   try {
     const { id } = req.params;
 
