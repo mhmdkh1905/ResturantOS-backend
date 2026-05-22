@@ -7,7 +7,7 @@ import {
   deleteMenuItem,
 } from "../controllers/menuController.js";
 import {
-  authinticateUser,
+  authenticateUser,
   requireTwoRoles,
   requireAdmin,
 } from "../middleware/auth.js";
@@ -17,12 +17,12 @@ const router = express.Router();
 router.get("/", getAllMenu);
 router.get(
   "/:id",
-  authinticateUser,
+  authenticateUser,
   requireTwoRoles("admin", "waiter"),
   getMenuById,
 );
-router.post("/", authinticateUser, requireAdmin("admin"), createMenuItem);
-router.put("/:id", authinticateUser, requireAdmin("admin"), updateMenuItem);
-router.delete("/:id", authinticateUser, requireAdmin("admin"), deleteMenuItem);
+router.post("/", authenticateUser, requireAdmin("admin"), createMenuItem);
+router.put("/:id", authenticateUser, requireAdmin("admin"), updateMenuItem);
+router.delete("/:id", authenticateUser, requireAdmin("admin"), deleteMenuItem);
 
 export default router;

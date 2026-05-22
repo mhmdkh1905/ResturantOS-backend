@@ -8,48 +8,48 @@ import {
   updateInventoryItem,
   deleteInventoryItem,
 } from "../controllers/inventoryController.js";
-import { authinticateUser, requireTwoRoles } from "../middleware/auth.js";
+import { authenticateUser, requireTwoRoles } from "../middleware/auth.js";
 
 const router = express.Router();
 
 router.get(
   "/",
-  authinticateUser,
+  authenticateUser,
   requireTwoRoles("admin", "chef"),
   getAllInventory,
 );
 
 router.get(
   "/name/:ingredientName",
-  authinticateUser,
+  authenticateUser,
   requireTwoRoles("admin", "chef"),
   getInventoryByName,
 );
 
 router.get(
   "/:id",
-  authinticateUser,
+  authenticateUser,
   requireTwoRoles("admin", "chef"),
   getInventoryById,
 );
 
 router.post(
   "/",
-  authinticateUser,
+  authenticateUser,
   requireTwoRoles("admin", "chef"),
   createInventoryItem,
 );
 
 router.put(
   "/:id",
-  authinticateUser,
+  authenticateUser,
   requireTwoRoles("admin", "chef"),
   updateInventoryItem,
 );
 
 router.delete(
   "/:id",
-  authinticateUser,
+  authenticateUser,
   requireTwoRoles("admin", "chef"),
   deleteInventoryItem,
 );

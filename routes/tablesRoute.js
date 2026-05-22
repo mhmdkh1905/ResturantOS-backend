@@ -8,7 +8,7 @@ import {
   deleteTable,
 } from "../controllers/tablesController.js";
 import {
-  authinticateUser,
+  authenticateUser,
   requireAdmin,
   requireTwoRoles,
 } from "../middleware/auth.js";
@@ -19,34 +19,34 @@ const router = express.Router();
 
 router.get(
   "/",
-  authinticateUser,
+  authenticateUser,
   requireTwoRoles("admin", "waiter"),
   getAllTables,
 );
 
 router.get(
   "/:id",
-  authinticateUser,
+  authenticateUser,
   requireTwoRoles("admin", "waiter"),
   getTableById,
 );
 
-router.post("/", authinticateUser, requireAdmin("admin"), createTable);
+router.post("/", authenticateUser, requireAdmin("admin"), createTable);
 
 router.put(
   "/:id",
-  authinticateUser,
+  authenticateUser,
   requireTwoRoles("admin", "waiter"),
   updateTable,
 );
 
 router.patch(
   "/:id/status",
-  authinticateUser,
+  authenticateUser,
   requireTwoRoles("admin", "waiter"),
   updateTableStatus,
 );
 
-router.delete("/:id", authinticateUser, requireAdmin("admin"), deleteTable);
+router.delete("/:id", authenticateUser, requireAdmin("admin"), deleteTable);
 
 export default router;

@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { successResponse, errorResponse } from "../utils/response.js";
 import User from "../models/userModel.js";
 
-export const authinticateUser = async (req, res, next) => {
+export const authenticateUser = async (req, res, next) => {
   try {
     const JWT_SECRET = process.env.JWT_SECRET;
     const authHeader = req.headers.authorization;

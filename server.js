@@ -4,8 +4,8 @@ dotenv.config();
 import express from "express";
 import cors from "cors";
 import logger from "./middleware/logger.js";
-import { authinticateUser } from "./middleware/auth.js";
-import { connectTODatabase } from "./config/database.js";
+import { authenticateUser } from "./middleware/auth.js";
+import { connectToDatabase } from "./config/database.js";
 
 import menuRoute from "./routes/menuRoute.js";
 import orderRoute from "./routes/orderRoute.js";
@@ -42,15 +42,15 @@ app.use(
 
 app.use("/api/auth", authRoute);
 app.use("/api/menu", menuRoute);
-app.use("/api/dashboard", authinticateUser, dashboardRoute);
-app.use("/api/orders", authinticateUser, orderRoute);
-app.use("/api/inventory", authinticateUser, inventoryRoute);
-app.use("/api/employees", authinticateUser, employeeRoute);
-app.use("/api/tables", authinticateUser, tableRoute);
+app.use("/api/dashboard", authenticateUser, dashboardRoute);
+app.use("/api/orders", authenticateUser, orderRoute);
+app.use("/api/inventory", authenticateUser, inventoryRoute);
+app.use("/api/employees", authenticateUser, employeeRoute);
+app.use("/api/tables", authenticateUser, tableRoute);
 
 const startServer = async () => {
   try {
-    await connectTODatabase();
+    await connectToDatabase();
 
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on port ${PORT}`);
