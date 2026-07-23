@@ -38,7 +38,6 @@ The API supports multiple restaurant roles, including administrators, chefs, and
 * [Main Features](#main-features)
 * [Technology Stack](#technology-stack)
 * [Project Structure](#project-structure)
-* [My Contribution](#my-contribution)
 * [Getting Started](#getting-started)
 * [Environment Variables](#environment-variables)
 * [Authentication](#authentication)
@@ -184,25 +183,6 @@ backend/
 ├── package.json
 └── server.js
 ```
-
----
-
-## My Contribution
-
-RestaurantOS was developed as a team project. My backend contributions included:
-
-* Building REST API endpoints using Node.js and Express.js
-* Creating MongoDB schemas and Mongoose models
-* Implementing JWT authentication
-* Adding role-based authorization middleware
-* Developing order, menu, inventory, employee, and table workflows
-* Implementing automatic inventory deduction when orders are created
-* Using MongoDB transactions for related database operations
-* Creating unified success and error response helpers
-* Connecting backend functionality with the frontend application
-* Debugging API, authentication, and database integration issues
-
-> Keep only the items that accurately describe your personal contribution.
 
 ---
 
